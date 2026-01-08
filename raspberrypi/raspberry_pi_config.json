@@ -1,0 +1,21 @@
+{
+  "calibration": {
+    "forward": 1.0,
+    "reverse": 1.0
+  },
+  "pins": {
+    "forward": 0,
+    "reverse": 1
+  },
+  "measurement": {
+    "interval": 0.5,
+    "max_swr": 10.0
+  },
+  "web_server": {
+    "port": 8080
+  },
+  "database": {
+    "enabled": false,
+    "path": "swr_data.db"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "myswr",
+  "version": "1.0.0",
+  "description": "SWR驻波表",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -p 3000 -o",
+    "dev": "npx http-server -p 3000 -o"
+  },
+  "keywords": ["swr", "驻波表", "radio"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

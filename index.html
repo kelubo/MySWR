@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SWR驻波表</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 用户登录界面 -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2>SWR驻波表 - 登录</h2>
+            <div class="form-group">
+                <label for="username">用户名:</label>
+                <input type="text" id="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">密码:</label>
+                <input type="password" id="password" required>
+            </div>
+            <button id="loginBtn">登录</button>
+            <div id="loginError" class="error-message"></div>
+        </div>
+    </div>
+
+    <div id="appContainer">
+        <div class="container">
+            <div class="header">
+                <h1>SWR驻波表</h1>
+                <div class="user-info">
+                    <span id="currentUser"></span>
+                </div>
+            </div>
+            
+            <div class="meter-container">
+                <div class="digital-meter">
+                    <div class="meter-section forward-section">
+                        <div class="meter-label">正向功率</div>
+                        <div class="meter-value" id="forwardValue">0.0</div>
+                        <div class="meter-unit">W</div>
+                    </div>
+                    <div class="meter-section swr-section">
+                        <div class="meter-label">SWR</div>
+                        <div class="meter-value" id="swrValue">1.0</div>
+                        <div class="meter-unit"></div>
+                    </div>
+                    <div class="meter-section reflected-section">
+                        <div class="meter-label">反向功率</div>
+                        <div class="meter-value" id="reflectedValue">0.0</div>
+                        <div class="meter-unit">W</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="forwardPower">正向功率 (W):</label>
+                    <input type="number" id="forwardPower" value="100" min="0" max="1000" step="1">
+                </div>
+                
+                <div class="control-group">
+                    <label for="reflectedPower">反射功率 (W):</label>
+                    <input type="number" id="reflectedPower" value="0" min="0" max="1000" step="1">
+                </div>
+                
+                <div class="result-group">
+                    <div class="result-item">
+                        <span class="label">SWR:</span>
+                        <span class="value" id="calculatedSWR">1.0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">反射系数:</span>
+                        <span class="value" id="reflectionCoeff">0.0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">功率损失:</span>
+                        <span class="value" id="powerLoss">0.0%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="status-indicator">
+                <div class="status-item" id="statusGood" class="active">
+                    <span class="status-dot"></span>
+                    <span>良好 (1.0-1.5)</span>
+                </div>
+                <div class="status-item" id="statusFair">
+                    <span class="status-dot"></span>
+                    <span>一般 (1.5-2.0)</span>
+                </div>
+                <div class="status-item" id="statusPoor">
+                    <span class="status-dot"></span>
+                    <span>较差 (2.0-3.0)</span>
+                </div>
+                <div class="status-item" id="statusBad">
+                    <span class="status-dot"></span>
+                    <span>严重 (>3.0)</span>
+                </div>
+            </div>
+            
+            <!-- 功能入口区域 -->
+            <div class="feature-entrances">
+                <button id="manageBtn">管理界面</button>
+                <button id="historyBtn">历史数据</button>
+            </div>
+
+            <!-- 报警设置区域 -->
+            <div class="alarm-section" style="display: none;">
+                <h2>报警设置</h2>
+                <div class="alarm-controls">
+                    <div class="control-group">
+                        <label for="alarmThreshold">SWR报警阈值:</label>
+                        <input type="number" id="alarmThreshold" value="2.0" min="1.0" max="10.0" step="0.1">
+                    </div>
+                    <div class="control-group">
+                        <label for="alarmEnabled">启用报警:</label>
+                        <input type="checkbox" id="alarmEnabled" checked>
+                    </div>
+                </div>
+                <div id="alarmStatus" class="alarm-status">
+                    <span id="alarmIndicator" class="status-dot"></span>
+                    <span id="alarmMessage">报警已启用 (阈值: 2.0)</span>
+                </div>
+            </div>
+
+            <!-- 历史数据图表 -->
+            <div class="history-section" style="display: none;">
+                <h2>历史数据</h2>
+                <div class="chart-container">
+                    <canvas id="swrChart"></canvas>
+                </div>
+                <div class="chart-controls">
+                    <button id="clearHistory">清除历史</button>
+                    <select id="timeRange">
+                        <option value="1">1分钟</option>
+                        <option value="5">5分钟</option>
+                        <option value="15">15分钟</option>
+                        <option value="30">30分钟</option>
+                        <option value="60">60分钟</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 远程控制区域 -->
+            <div class="control-section" style="display: none;">
+                <h2>远程控制</h2>
+                <div class="remote-controls">
+                    <div class="control-group">
+                        <label for="deviceStatus">设备状态:</label>
+                        <span id="deviceStatus">运行中</span>
+                    </div>
+                    <div class="control-group">
+                        <button id="resetBtn">重置设备</button>
+                        <button id="calibrateBtn">校准</button>
+                        <button id="saveSettings">保存设置</button>
+                    </div>
+                    <div class="control-group">
+                        <label for="updateInterval">更新间隔 (ms):</label>
+                        <input type="number" id="updateInterval" value="1000" min="500" max="10000" step="500">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
